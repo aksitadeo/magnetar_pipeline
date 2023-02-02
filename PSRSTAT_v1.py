@@ -43,10 +43,12 @@ using the terminal command
 # J1622-4950 used paz -F "2630 2670" -F "3444 3472" -F "3542 3570" *.ar -e .ar.zap
 
 
-#%% Main Loop
+#%% Main Loop to extract S/N
 
+# store S/N in this array
 x =[]
 
+# get our S/N using psrstat
 for filename in os.listdir():
     if filename.endswith(".ar.zap.F"):
         print("")
@@ -55,7 +57,7 @@ for filename in os.listdir():
         xs = output.split()
         x += [xs]
 
-#%% Convert to float
+#%% Convert values float
 
 for thing in x:
     thing[1] = float(thing[1])
@@ -75,12 +77,13 @@ top10 = final_df.head(20)
 
 #%% View the sources
 
+# change this to whichever source you're working on
 source = 'J1818-1607'
 
 for file in top10['filename']:
     files = file[0:17]
     print("Now working on: {}".format(files))
-    # /DATA/MENSA_1/deo010/dir/J1550-5418/F_s130416_212545.sf
+    # change the following line so the directory in which your folders are in here
     os.system('gv /DATA/MENSA_1/deo010/dir/{}/F_{}/{}TEST_rfifind.ps'.format(source,files,files))
 
 #%% Averaging in polarisation
@@ -98,15 +101,4 @@ for filename in os.listdir():
         print("")
         print('Now working on: {}'.format(filename))
         os.system('pdv -t {} >> {}.txt'.format(filename,filename))
-
-#%% Code testing
-
-print('test')
-
-os.system('psrplot ARCHIVEs/t160114_192200.sfARCH.ar.zap.F')
-
-
-
-
-
 
