@@ -56,9 +56,6 @@ def DSPSR(data,name,dm):
     
     # move all .ar files to the ARCHIVEs/ folder
     os.system("mv *ARCH.ar ARCHIVEs/")
-    
-    # get archive
-    #os.system(archive(time,dm,name,data)) 
 
 #%% Example code for one source
 
