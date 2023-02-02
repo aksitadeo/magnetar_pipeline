@@ -22,19 +22,19 @@ import os
 # %% Rfifinds
 def rfifind(data,time,name):
     # Parameters 
-    # data:
-    # time:
+    # data: the file name, in this a psrfits with the extension .sf
+    # time: the time bins searched within an observation (s)
      return "rfifind -psrfits -zerodm -time {} -noweights -noscales -noclip -o {} {}".format(time,name,data)
 
 # %% De-dispersion
 
 def prepsubband(name,chan,lodm,dmstep,numdms,data):
     # Parameters
-    # chan:
-    # lodm
-    # dmstepbackspace
-    # numdms
-    # data
+    # chan: channels to ignore
+    # lodm: the lowest DM value to begin searching from
+    # dmstep: the step size between each DM value taken
+    # numdms: the number of values you want to search over
+    # data: the .sf observation file
     return 'prepsubband -mask {}_rfifind.mask -noscales -nsub 64 -ignorechan {} -lodm {} -dmstep {} -numdms {} -zerodm -o {} {}'.format(name,chan,lodm,dmstep,numdms,name, data)
     
 # %% Single pulse search
@@ -44,13 +44,12 @@ def single_pulse(threshold, ms, name):
 
 # %% Large function
 
-# os.system("rfifind -flags -o out t150418_180959.sf")
-
 def PRESTO(data,name,time,chan,lodm,dmstep,numdms,threshold,ms):
     
     # rfifinds
     os.system(rfifind(data,time,name))
     
+    # uncomment this if you want to see the RFI flagged
     # ghostview
     # os.system("gv {}_rfifind.ps".format(name))
     
@@ -59,18 +58,20 @@ def PRESTO(data,name,time,chan,lodm,dmstep,numdms,threshold,ms):
     
     # single search
     os.system(single_pulse(threshold,ms,name))
-    
+   
+    # uncomment this if you want to see which DM the pulsar is peaking at
     # ghostview
     # os.system ("gv {}_singlepulse.ps".format(name))
     
     # search for candidates
     os.system('touch {}.candidates'.format(data))
     os.system('cat *.singlepulse >> {}.candidates'.format(data))
-    
+
+    # make a directory for each observation
     os.system("mkdir F_{}/".format(data))
     os.system("mv {}* F_{}/".format(name,data))
 
-# %% Source 1
+# %% Example code for one source
 
 PRESTO(data = 't201026_074244.sf',name = 't201026_074244.sfTEST',time = '2.0',chan = '0', lodm = '780', dmstep = '10', numdms = '10', threshold = '30', ms = '0.05')
 
@@ -81,14 +82,10 @@ for filename in os.listdir():
         print(" ")
         print("Now working on: {}".format(filename))
         PRESTO(data = '{}'.format(filename),name = '{}TEST'.format(filename),time = '2.0',chan = '0', lodm = '650', dmstep = '10', numdms = '10', threshold = '30', ms = '0.05')
-#os.system('touch ALL.Candidates')
-#os.system('cat *.candidates >> ALL.Candidates')
-
-    #%%
-print("hello")
-
-#%%
-os.system('gv F_t201026_074244.sf/*_singlepulse.ps') 
+            
+            
+            
+            
 
 
 
