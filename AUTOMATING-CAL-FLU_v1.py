@@ -59,10 +59,6 @@ def noise(filename):
         
     return stdbins[np.argmin(stds)]
 
-#%% Test
-
-# noise('t160114_192200.sfARCH.ar.zap.Fp.txt')
-
 #%% Calculate experimental rms
 
 def rmsprac(filename,noise):
@@ -77,7 +73,6 @@ def rmsprac(filename,noise):
     start = int(min(noise))
     end = int(max(noise))
     obs = end-start
-    
     
     rmsp = math.sqrt( (1/obs)*np.sum( (I[start:end])**2 ) )
     
@@ -100,6 +95,7 @@ def rmstheory(beta, SEFD, np, t_int, del_f):
     del_f = float(del_f)                                                       # bandwidth
     
     rmst = (beta*SEFD)/(math.sqrt(np*t_int*del_f))
+      
     print("The theoretical rms is {}".format(rmst))
     
     return rmst
@@ -114,25 +110,28 @@ def correction(filename, rmst, rmsp):
 #%% Find a window for the width of the fluence
 
 def find_nearest(array,value):
+     # define array and index of array elements
     array = np.asarray(array)
     idx = np.searchsorted(array, value, side="left")
     
-    if idx == len(array):                                                      # if edge case
+    # if edge case
+    if idx == len(array):                                                
         idx = idx-1
     
+    # if left side of the peak
     if array[idx] < value:
+       # return value of left and right side of the peak
         try:
             return array[idx], array[idx+1]
+       # if no right side of peak, return edge value
         except IndexError:
             return array[idx], 1500
+    # if not
     else:
         if idx == 0:
             return 0, array[idx]
         else:
             return array[idx-1],array[idx]
-    
-    # if value < idx:
-        # return array[idx], array[idx]
 
 #%% Check if the value is less
 
@@ -171,13 +170,12 @@ def window(filename,start,end):
     phase = file[0,:]
     flux = file[1,:]
     print(np.max(flux))
-
     
+    # find burst window
     burst = end-start
-    fluence = (sum(flux))/1000
+    fluence = (sum(flux))/1000                                    # convert to Jy from mJy
     
-    phase = file[0,:]
-    
+    # plot the window
     plt.figure(figsize=(20,12))
     plt.style.use('dark_background')
     plt.plot(phase,flux,'w')
@@ -190,7 +188,7 @@ def window(filename,start,end):
     print("Burst width is {} ms".format(burst))
     print("Fluence is {} Jy ms".format(fluence))
     
-    return fluence, flux
+    return fluence
 
 #%% Big function
 def cal_fluence(filename):
@@ -203,7 +201,7 @@ def cal_fluence(filename):
     SEFD = 25000                # miliJansky
     np = 2                      # polarisation number summed
     t = 1.5                     # integration time per phase bin
-    del_f = 256e6              # bandwidth
+    del_f = 256e6               # bandwidth
     
     
     # Find which channels do not contain the peak
@@ -223,21 +221,20 @@ def cal_fluence(filename):
     start, end, SN = troughfinds(filename,rmst)
     # Find the fluence of the burst
     if SN > 2.5:
-        fluence,flux = window(filename,start,end)
-        return fluence, flux
+        fluence = window(filename,start,end)
+        return fluence
     
     else:
         print("Check {} for bursts".format(filename))
 
-#%%
+#%% Example code to run through all data
 
-fluence,flux = cal_fluence('t211001_084100.sf90ARCH.ar.zap.Fp.txt')
-
-#%% Run through all data
-
+# creates a list of source that had errors to check for bursts manually
 Errors = []
+# creates a list of fluences
 Fluences = []
 
+# looping over all observations
 for filename in os.listdir():
     if filename.endswith(".txt"):
         try: 
@@ -250,7 +247,7 @@ for filename in os.listdir():
             Errors += [filename]
 
 #%% Save fluences files
-            
+# change this with each source and adjust directory as needed
 source = 'J1818-1607'
 np.savetxt('/DATA/MENSA_1/deo010/dir/FLUENCE_{}.txt'.format(source),Fluences,fmt='%s')
 
@@ -262,6 +259,17 @@ print("""
       
       """)
 
+#%% General notice
+
+print("""
+      
+      TRANSIENT PHASE SPACE DIAGRAM
+      
+      The following code is specific to a project conducted and mentions files that that may not be applicable to what
+      you are trying to achieve. If you are trying to plot a transient phase space diagram, change source variables and 
+      file names to those relevent to your project. The FRBs and magnetar fluence values from literature are cited.
+      
+      """)
 #%% Add our sources
 
 #J1550-5418
@@ -383,16 +391,18 @@ d_FRB_20220912A = z(0.0771)*len(FRB_20220912A)
 #  SGR & J1550 Bursts
 # =============================================================================
 
+# https://www.nature.com/articles/s41586-020-2863-y
 SGR_1935 = [480000,220000]
 d_SGR_1935 = [10000]*len(SGR_1935)
 
+# https://arxiv.org/abs/2011.06607
 J1550lit = [0.6e3]
 d_J1550lit = [4500]*len(J1550lit)
 
 crab = [583,321,210,4742]
 d_crab = [1860]*len(crab)
 
-#%% The forumula
+#%% The formula
 
 pc = np.logspace(3,10,1024)*3.086e18
 e = [1e26,1e29,1e32,1e35,1e38,1e41,1e44]
@@ -411,10 +421,7 @@ for x in e:
     eq = "1e26 erg"
     plt.plot(pc/3e18,F,linestyle='dashed',alpha=0.3,zorder=0)
 
-
 # Sources
-
-# plt.scatter(d_,,marker='x',label='')
 
 # Our sources
 plt.scatter(J1550dist,J1550,marker='s',label='IE 1547.0-5408',color='lightblue',zorder=5)
@@ -452,7 +459,7 @@ plt.title("Transient Phase Space",fontsize=15)
 plt.xlabel('Distance (pc)',fontsize=12)
 plt.ylabel('Flux Density (Jy ms)',fontsize=12)
 
-# lines eq
+# lines of constant energy plots
 eq = ["1e26 erg","1e29 erg","1e32 erg","1e35 erg","1e38 erg","1e41 erg","1e44 erg"]
 plt.text(10**3.5,10**-2, eq[0], fontsize=10,rotation=-45,color='lightblue')
 plt.text(10**4.5,10**-1, eq[1], fontsize=10,rotation=-45,color='orange')
@@ -486,24 +493,3 @@ plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
 plt.show()
 
-#%% 
-
-cray = [1,2,3,4,5,6,6,66,6,6]
-print(np.sum(cray))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
