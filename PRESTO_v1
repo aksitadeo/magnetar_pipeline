@@ -76,7 +76,7 @@ def PRESTO(data,name,time,chan,lodm,dmstep,numdms,threshold,ms):
 PRESTO(data = 't201026_074244.sf',name = 't201026_074244.sfTEST',time = '2.0',chan = '0', lodm = '780', dmstep = '10', numdms = '10', threshold = '30', ms = '0.05')
 
 
-#%% Looping
+#%% Example code for looping over observations
 for filename in os.listdir():
     if filename.endswith(".sf"):
         print(" ")
