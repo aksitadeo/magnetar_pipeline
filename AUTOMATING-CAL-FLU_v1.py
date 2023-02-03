@@ -410,13 +410,11 @@ Hz = 500e6
 
 #%% Plotting the transient phase space diagram
 
-plt.figure(figsize=(10,8))
+plt.figure(figsize=(12,10))
 plt.style.use('default')
 
-
-# # Lines of constant energy
+# Lines of constant energy
 for x in e:
-    #F = 1.05e-17*(x/4*np.pi)*(pc**-2.0)*(Hz)
     F = (1e26)*x*(1/(4*np.pi*(pc**2)*Hz))
     eq = "1e26 erg"
     plt.plot(pc/3e18,F,linestyle='dashed',alpha=0.3,zorder=0)
@@ -454,7 +452,7 @@ plt.scatter(d_SGR_1935,SGR_1935,marker='*',label='SGR_1935',zorder=5)
 plt.scatter(d_J1550lit,J1550lit,marker='*',label='IE 1547.0-5408 Israel et al.',zorder=5)
 plt.scatter(d_crab,crab,marker='*',label="Crab Pulsar",zorder=5)
 
-#plt.legend(bbox_to_anchor=(1, 1),loc='upper left',fancybox=True)
+plt.legend(bbox_to_anchor=(1, 1),loc='upper left',fancybox=True)
 plt.title("Transient Phase Space",fontsize=15)
 plt.xlabel('Distance (pc)',fontsize=12)
 plt.ylabel('Flux Density (Jy ms)',fontsize=12)
@@ -473,23 +471,4 @@ plt.xscale('log')
 plt.yscale('log')
 plt.xlim(1e3,1e10)
 plt.ylim(1e-3,1e7)
-
-#%% Coding
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-x = np.linspace(0, 10, 100)
-y1 = np.sin(x)
-y2 = np.cos(x)
-
-plt.plot(x, y1, label='sin(x)')
-plt.plot(x, y2, label='cos(x)')
-plt.xlabel('x')
-plt.ylabel('y')
-
-# Take the legend outside the plot
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-
-plt.show()
 
